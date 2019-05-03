@@ -61,11 +61,11 @@ function get_cache_item_key() {
     cat $1 | sed -n '/^KEY:/p' | cut -f 2- -d ':'
 } # get_cache_item_key
 
-## Get a cache item TTL.
+## Get a cache item expiry.
 ## $1 - cache file.
-function get_cache_item_ttl() {
-    od -dL $1 | sed -n '2p' | awk '{print $1 - $2}'
-} # get_cache_item_ttl
+function get_cache_item_expiry() {
+    od -dL $1 | sed -n '2p' | awk '{print $2}'
+} # get_cache_item_expiry
 
 ## Inspects an item from the given cache zone.
 ## $1 - the filename, can be a pattern .
@@ -84,12 +84,8 @@ function nginx_cache_inspect_item() {
             key=$(get_cache_item_key $i)
             if [ -n "$key" ]; then
                 echo "file: $i"
-                ttl=$(get_cache_item_ttl $i)
-                ## If the expire timestamp is negative that means that
-                ## the item is not found or other error.
-                [ $ttl -lt 0 ] && echo "404 Not found" && continue
-                expires=$(expr $ttl + $(date '+ %s'))
-                echo "key: $key TTL: $ttl EXPIRES:$(date '+ %d.%b.%Y %T' --date=@$expires)"
+                expiry=$(get_cache_item_expiry $i)
+                echo "key: $key EXPIRES:$(date '+ %d.%b.%Y %T' --date=@$expiry)"
             fi
         done
     else
