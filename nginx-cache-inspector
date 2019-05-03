@@ -92,7 +92,7 @@ function nginx_cache_inspect_item() {
                 echo "file: $i"
                 expiry=$(get_cache_item_expiry $i)
                 filesize=$(get_size_on_disk $i)
-                echo "key: $key EXPIRES:$(date '+ %d.%b.%Y %T' --date=@$expiry) Cache filesize: $filesize"
+                echo "KEY: $key EXPIRES:$(date '+ %d.%b.%Y %T' --date=@$expiry) FILESIZE: $filesize"
             fi
         done
     else
