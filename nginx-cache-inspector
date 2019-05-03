@@ -67,11 +67,17 @@ function get_cache_item_expiry() {
     od -dL $1 | sed -n '2p' | awk '{print $2}'
 } # get_cache_item_expiry
 
+## Get size of the cache file
+## $1 - cache file
+function get_size_on_disk(){
+    du -b $1 | awk '{print $1}'
+}
+
 ## Inspects an item from the given cache zone.
 ## $1 - the filename, can be a pattern .
 ## $2 - the cache directory.
 function nginx_cache_inspect_item() {
-    local cache_files key ttl expires
+    local cache_files key ttl expires filesize
 
     [ -d $2 ] || exit 2
     cache_files=$(get_cache_files "$1" $2)
@@ -85,7 +91,8 @@ function nginx_cache_inspect_item() {
             if [ -n "$key" ]; then
                 echo "file: $i"
                 expiry=$(get_cache_item_expiry $i)
-                echo "key: $key EXPIRES:$(date '+ %d.%b.%Y %T' --date=@$expiry)"
+                filesize=$(get_size_on_disk $i)
+                echo "key: $key EXPIRES:$(date '+ %d.%b.%Y %T' --date=@$expiry) Cache filesize: $filesize"
             fi
         done
     else
